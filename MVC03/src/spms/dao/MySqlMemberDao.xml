@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  
+<mapper namespace="spms.dao.MemberDao">
+	<resultMap type="member" id="memberMap">
+		<id column="mno" property="mno"  />
+		<result column="email" property="email"/>
+		<result column="pwd" property="pwd"/>
+		<result column="mname" property="mname"/>
+		<result column="CRE_DATE" property="cdate" javaType="java.sql.Date"/>
+		<result column="MOD_DATE" property="mdate" javaType="java.sql.Date"/>
+	</resultMap>
+	
+	<select id="selectList" parameterType="map" resultMap="memberMap">
+	select mno, mname, email, cre_date 
+	from members
+	order by
+	<choose> 
+        <when test="compInfo == 'MNAME_ASC'">MNAME asc</when>
+        <when test="compInfo == 'MNAME_DESC'">MNAME desc</when>
+        <when test="compInfo == 'CREDATE_ASC'">CRE_DATE asc</when>
+        <when test="compInfo == 'CREDATE_DESC'">CRE_DATE desc</when>
+        <when test="compInfo == 'MNO_DESC'">mno desc</when>
+        <otherwise>mno asc</otherwise>
+    </choose>
+	</select>
+	
+	<select id="selectOne" resultMap="memberMap" parameterType="int">
+	select mno, mname, email, cre_date
+	from members
+	where mno=#{value}
+	</select>
+	
+	<insert id="insert" parameterType="member">
+	insert into members (email, pwd, mname, cre_date, mod_date)
+	values(#{email}, #{pwd}, #{mname}, now(), now())
+	</insert>
+	
+	<delete id="delete" parameterType="int">
+	delete from members where mno=${value}
+	</delete>
+	
+	<update id="update" parameterType="map">
+	update members
+		<set>
+		<if test="mname != null">mname=#{mname},</if>
+		<if test="email != null">email=#{email},</if>
+		mod_date=now()
+		</set>
+	where mno=#{mno}
+	</update>
+	
+	<select id="logInfo" parameterType="map" resultMap="memberMap">
+	select mname, email from members where email=#{email} AND pwd=#{pwd}		
+	</select>
+
+</mapper>  
